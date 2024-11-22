@@ -1,72 +1,22 @@
-<ion-header [translucent]="true">
+<ion-header>
   <ion-toolbar>
-    <ion-title>
-      Lista de Robots
-    </ion-title>
+    <ion-title>Robots y Libros</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <ion-card>
-    <ion-item>
-      <ion-input
-        [(ngModel)]="searchTerm"
-        placeholder="Introduce el nombre del robot"
-      ></ion-input>
+  <!-- Verifica si hay elementos -->
+  <ion-list *ngIf="items.length > 0">
+    <ion-item *ngFor="let item of items">
+      <ion-thumbnail slot="start">
+        <img [src]="item.robotImage" alt="Robot">
+      </ion-thumbnail>
+      <ion-label>{{ item.title }}</ion-label>
     </ion-item>
-    <ion-button expand="full" (click)="searchPokemon()">Buscar</ion-button>
-  </ion-card>
+  </ion-list>
 
-  <div *ngIf="errorMessage" class="ion-text-center">
-    <p>{{ errorMessage }}</p>
+  <!-- Mensaje de carga -->
+  <div *ngIf="items.length === 0">
+    Cargando datos...
   </div>
-
-  <ion-grid class="ion-padding">
-    <ion-row>
-      <ion-col
-        size="12"
-        size-md="6"
-        size-lg="4"
-        *ngFor="let pokemon of listPokemon"
-      >
-        <ion-card
-          class = "flex flex-col items-center bg-gray-700 hover:bg-gray-800 rounded-lg"
-          [routerLink]="['/pokemon', pokemon.name]"
-        >
-          <ion-card-header>
-            <ion-card-title>{{ pokemon.name | titlecase }}</ion-card-title>
-          </ion-card-header>
-          <ion-card-content>
-            <img
-              [src]="pokemon.sprites.front_default"
-              alt="Imagen de {{ pokemon.name }}"
-              width="200"
-              height="200"
-            />
-            <p
-              *ngIf="pokemon.height"
-              class = "text-white"
-              ><strong class="uppercase">Altura:</strong> {{ pokemon.height }}</p>
-            <p
-              *ngIf="pokemon.weight"
-              class = "text-white"
-            >
-            <strong class="uppercase">Peso:</strong> {{ pokemon.weight }}</p>
-            <p class="text-white"><strong class="uppercase">Habilidades:</strong></p>
-            <ul>
-              <li *ngFor="let ability of pokemon.abilities">
-                <p
-                  class = "text-white"
-                >
-                  {{ ability.ability.name }}
-                </p>
-              </li>
-            </ul>
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
-
-  <ion-spinner *ngIf="isLoading" class="loading-spinner"></ion-spinner>
 </ion-content>
