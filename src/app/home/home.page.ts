@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { BooksService } from '../services/books.service';
-import { DogsService } from '../services/dogs.service';
+import { BookService } from '../services/book.service';
 import { StorageService } from '../services/storage.service';
+import { RobotService } from '../services/robot.service';
+import { lastValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-home',
@@ -11,11 +12,11 @@ import { StorageService } from '../services/storage.service';
 export class HomePage implements OnInit {
   elementos: any[] = [];
   isLoading = false;
+  colors: string[] = ['#FF5733', '#33FF57', '#3357FF', '#FF33A8', '#A833FF', '#33FFF2']; // Paleta de colores
 
-  
   constructor(
-    private booksService: BooksService,
-    private dogsService: DogsService,
+    private bookService: BookService,
+    private robotService: RobotService,
     private storageService: StorageService
   ) {}
 
@@ -23,49 +24,59 @@ export class HomePage implements OnInit {
     this.getElements();
   }
 
-  // Metodo para obtener los libros
-  async getBooks(){
-    const response = await this.booksService.listBooks(10).toPromise();
-    const books = response.results;
-    return books;
+  // Método para obtener los libros
+  async getBooks(): Promise<any[]> {
+    const response = await lastValueFrom(this.bookService.listBooks(10));
+    return response.results || [];
   }
 
-  // Metodo para obtener una lista de razas de perros
-  async getRandomDog() {
-    const response =  await this.dogsService.getRandomImage().toPromise();  
-    const imageDog = response.message;
-    return imageDog;
+  // Método para obtener una imagen aleatoria de un robot
+  async getRandomRobot(): Promise<string> {
+    const response = await lastValueFrom(this.robotService.getRandomRobot());
+    return URL.createObjectURL(response); // Convertir Blob a URL para usar como src en imágenes
   }
 
   // Unificar la respuesta en la lista de elementos
   async getElements() {
     this.isLoading = true;
-    const libros = await this.getBooks();
-    const elemento = {}
+    try {
+      // Obtener libros
+      const libros = await this.getBooks();
 
-    libros.forEach((libro:any) => {
-      this.elementos.push({
+      // Crear elementos iniciales sin imágenes
+      this.elementos = libros.map((libro: any) => ({
         title: libro.title,
-        image: ""
-      });
-    });
+        image: '',
+      }));
 
-    for (let i = 0; i < this.elementos.length; i++) {
-      const image = await this.getRandomDog();
-      this.elementos[i].image = image;
+      // Obtener imágenes de robots en paralelo
+      const robotImages = await Promise.all(
+        this.elementos.map(() => this.getRandomRobot())
+      );
+
+      // Asignar imágenes a los elementos
+      this.elementos.forEach((elemento, index) => {
+        elemento.image = robotImages[index];
+      });
+
+      console.log(this.elementos);
+    } catch (error) {
+      console.error('Error al obtener elementos:', error);
+    } finally {
+      this.isLoading = false;
     }
-    console.log(this.elementos);
-    this.isLoading = false;
   }
 
-  // Guardar en firebase el elemento
+  // Guardar en Firebase el elemento
   async saveElement(element: any) {
-    const resultado = await this.storageService.addNote({
-      title: element.title,
-      text: element.image
-    });
-
-    console.log(resultado);
-    
+    try {
+      const resultado = await this.storageService.addNote({
+        title: element.title,
+        text: element.image,
+      });
+      console.log('Elemento guardado:', resultado);
+    } catch (error) {
+      console.error('Error al guardar elemento:', error);
+    }
   }
 }

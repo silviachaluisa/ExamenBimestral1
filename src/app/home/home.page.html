@@ -1,54 +1,60 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>
-      Blank
-    </ion-title>
+    <ion-title>Galería de Robots</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
   <ion-header collapse="condense">
     <ion-toolbar>
-      <ion-title size="large">Blank</ion-title>
+      <ion-title size="large">Galería </ion-title>
     </ion-toolbar>
   </ion-header>
 
   <ion-grid>
-    <ion-row>
+    <ion-row class="justify-center gap-4">
+      <!-- Cada columna ocupa 1/4 del ancho total en pantallas grandes -->
       <ion-col
         size="12"
         size-md="6"
-        size-lg="4"
-        *ngFor="let elemento of elementos"
+        size-lg="3"
+        *ngFor="let elemento of elementos; let i = index"
+        class="flex justify-center"
       >
+        <!-- Tarjeta de cada robot -->
         <ion-card
-        class="ion-border-radius"
+          [ngStyle]="{ 'background-color': colors[i % colors.length] }"
+          class="rounded-lg shadow-lg transition-transform hover:scale-105 bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500"
         >
-          <ion-card-header>
-            <ion-card-title>{{ elemento.title }}</ion-card-title>
+          <ion-card-header class="flex flex-col items-center text-white">
+            <ion-card-title class="text-lg font-bold text-center">
+              {{ elemento.title }}
+            </ion-card-title>
           </ion-card-header>
-          <ion-card-content>
+          <ion-card-content class="flex flex-col items-center">
             <img
               [src]="elemento.image"
-              alt="Imagen"
-              width="40"
-              height="40"            
+              alt="Robot"
+              class="rounded-full w-24 h-24 border-4 border-white shadow-lg mb-4"
             />
-
             <ion-button
               (click)="saveElement(elemento)"
               expand="block"
-              fill="clear"
-              color="primary"
+              fill="solid"
+              color="light"
+              class="w-full font-semibold text-gray-700"
             >
               Guardar
             </ion-button>
           </ion-card-content>
         </ion-card>
-    </ion-col>
+      </ion-col>
     </ion-row>
-      
   </ion-grid>
 
-  <ion-spinner *ngIf="isLoading" class="loading-spinner"></ion-spinner>
+  <!-- Spinner de carga -->
+  <ion-spinner
+    *ngIf="isLoading"
+    class="fixed inset-0 flex justify-center items-center text-4xl text-blue-500"
+  ></ion-spinner>
 </ion-content>

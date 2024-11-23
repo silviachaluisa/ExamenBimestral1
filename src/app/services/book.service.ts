@@ -6,7 +6,7 @@ import { Observable } from 'rxjs'
 @Injectable({
   providedIn: 'root'
 })
-export class BooksService {
+export class BookService {
   API= "https://gutendex.com/books"
 
   private ids: String = ""
